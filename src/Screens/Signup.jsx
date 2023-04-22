@@ -6,9 +6,14 @@ import { RFPercentage as rp, RFValue as rf } from "react-native-responsive-fonts
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import MessageCard from '../Components/MessageCard';
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import {createUserWithEmailAndPassword,getAuth,deleteUser,updateProfile,sendEmailVerification} from "firebase/auth"
+import {doc,setDoc,getFirestore, addDoc, serverTimestamp} from "firebase/firestore"
+import { GeoPoint } from 'firebase/firestore';
+import app from '../configs/firebase';
 export default function Signup({route,navigation}) {
+    const db=getFirestore(app)
+    const auth=getAuth(app)
     const {istrainer}=route.params
-    console.log(istrainer)
     const[email,setemail]=React.useState("")
     const[password,setpassword]=React.useState("")
     const[name,setname]=React.useState("")
@@ -18,43 +23,45 @@ export default function Signup({route,navigation}) {
     const [issubmit,setissubmit]=React.useState(false)
     const [Error,setError]=React.useState('')
     const [type,settype]=React.useState(false)
-    const [location, setLocation] = React.useState(null);
+    const [latitude,setlatitude]=React.useState(null);
+    const [longitude,setlongitude]=React.useState(null);
     const [address, setaddress] = React.useState(null);
     const handleSelect = (data, details) => {
-      console.log("pressede")
-        setLocation({
-        latitude: details.geometry.location.lat,
-        longitude: details.geometry.location.lng,
-        latitudeDelta: 0.015,
-        longitudeDelta: 0.0121,
-      });
+        setlatitude(details.geometry.location.lat)
+        setlongitude(details.geometry.location.lng)
       setaddress(data.description);
     };
-    const handleform=async()=>{
-        setisload(true)
-        setissubmit(true)
-        try{
-            if(email.length>6&&password.length>3){
-
-                setError("Registered Successfully")
-                setisload(false)
-                settype(true)
-            }
-            else
-            {
-                setError("Incomplete Credentials")
-                setisload(false)
-                settype(false)
-           
-            }
+    const handleform = async () => {
+        setisload(true);
+        
+        try {
+          const location = new GeoPoint(latitude, longitude);
+          const newuser = await createUserWithEmailAndPassword(auth, email, password);
+          const newdoc = await setDoc(doc(db, "users", newuser.user.uid), {
+            userid: newuser.user.uid,
+            name: name,
+            email: email,
+            phone: phone,
+            address: address,
+            location:location,
+            age: age,
+            description: "",
+            trainer: istrainer,
+            availabletime: "",
+            profilepic:""
+          });
+      
+          setError("Registered Successfully");
+          settype(true);
+        } catch (error) {
+          setError("Registration Failed");
+          settype(false);
         }
-        catch{
-            setError("Try again later")
-            setisload(false)
-            settype(false)
-           
-        }
-    }
+        setissubmit(true);
+ 
+        setisload(false);
+      };
+      
     const callbacksubmit=()=>{
         setissubmit(false)
     }
@@ -121,7 +128,7 @@ export default function Signup({route,navigation}) {
      <View style={{marginBottom:rp(1)}}>
         <TextInput
         secureTextEntry
-        placeholder='Password'
+        placeholder='Password atleast 6 characters'
         value={password} onChangeText={(e)=>setpassword(e)}
         style={{marginTop:rp(1),borderBottomWidth:1,borderBottomColor:colors.black,paddingHorizontal:rp(1),paddingVertical:rp(1.6),color:colors.black,fontFamily:fonts.Rregular}} />
      </View>

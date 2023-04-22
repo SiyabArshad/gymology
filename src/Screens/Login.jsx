@@ -5,7 +5,14 @@ import colors from '../configs/colors'
 import { RFPercentage as rp, RFValue as rf } from "react-native-responsive-fontsize";
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import MessageCard from '../Components/MessageCard';
+import {createUserWithEmailAndPassword,getAuth,deleteUser,updateProfile,sendEmailVerification,signInWithEmailAndPassword} from "firebase/auth"
+import {doc,setDoc,getFirestore, addDoc,getDoc, serverTimestamp} from "firebase/firestore"
+import app from '../configs/firebase';
+import { useAuth } from '../context/Authemtication';
 export default function Login({navigation}) {
+    const db=getFirestore(app)
+    const auth=getAuth(app)
+    const {login}=useAuth()
     const[email,setemail]=React.useState("")
     const[password,setpassword]=React.useState("")
     const [isload,setisload]=React.useState(false)
@@ -14,27 +21,48 @@ export default function Login({navigation}) {
     const [type,settype]=React.useState(false)
     const handleform=async()=>{
         setisload(true)
-        setissubmit(true)
         try{
-            if(email.length>6&&password.length>3){
+            if(email.length>6&&password.length>5){
                 setissubmit(false)
-                setisload(false)
-                navigation.navigate("home")    
+                try{
+                    
+                    const userinfo=await signInWithEmailAndPassword(auth,email,password)
+                    const myDocRef = doc(db, "users", userinfo.user.uid);
+                    const response = await getDoc(myDocRef);
+                    if(response.exists())
+                    {
+                    login(response.data())
+                    setError("Logged in Sucessfully")
+                    settype(true)   
+                    }
+                    else
+                    {
+                    setError("Login Failed")
+                    settype(false)   
+                    }
+                     
+                }   
+                catch(e){
+                    console.log(e)
+                    setError("Login Failed")
+                    settype(false)
+               
+                } 
             }
             else
             {
                 setError("Incomplete Credentials")
-                setisload(false)
                 settype(false)
                 
             }
         }
         catch{
             setError("Try again later")
-            setisload(false)
             settype(false)
            
         }
+        setissubmit(true)
+        setisload(false)
     }
     const callbacksubmit=()=>{
         setissubmit(false)

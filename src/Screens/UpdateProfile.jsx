@@ -5,33 +5,45 @@ import colors from '../configs/colors'
 import { RFPercentage as rp, RFValue as rf } from "react-native-responsive-fontsize";
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import MessageCard from '../Components/MessageCard';
-// import ModalDateTimePicker from 'react-native-modal-datetime-picker';
+import {createUserWithEmailAndPassword,getAuth,deleteUser,updateProfile,sendEmailVerification,signInWithEmailAndPassword} from "firebase/auth"
+import {doc,setDoc,getFirestore, addDoc,getDoc, updateDoc,serverTimestamp} from "firebase/firestore"
+import app from '../configs/firebase';
+import { useAuth } from '../context/Authemtication';
 import moment from 'moment';
+
 export default function UpdateProfile({navigation}) {
+  const db=getFirestore(app)
+  const auth=getAuth(app)
+  const {logout,user}=useAuth()
+  const updateDocument = async (collectionName, documentId, updatedFields) => {
+    const documentRef = doc(db, collectionName, documentId);
+    try {
+      await updateDoc(documentRef, updatedFields);
+    } catch (e) {
+      console.error("Error updating document: ", e);
+    }
+  };
+  
     const[desc,setdesc]=React.useState("")
     const[from,setfrom]=React.useState("")
-    const[to,setto]=React.useState("")
-    const [showStartTimePicker, setShowStartTimePicker] = useState(false);
-    const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-
     const [isload,setisload]=React.useState(false)
     const [issubmit,setissubmit]=React.useState(false)
     const [Error,setError]=React.useState('')
     const [type,settype]=React.useState(false)
     const handleform=async()=>{
         setisload(true)
-        setissubmit(true)
         try{
+                await updateDocument("users",user.userid,{availabletime:from,description:desc})
                 setError("Updated Successfully")
-                setisload(false)
                 settype(true)
                  }
-        catch{
+        catch(e){
             setError("Try again later")
-            setisload(false)
             settype(false)
            
         }
+        setissubmit(true)
+        setisload(false)
     }
     const callbacksubmit=()=>{
         setissubmit(false)
@@ -40,26 +52,6 @@ export default function UpdateProfile({navigation}) {
   return (
     <View style={styles.mnonb}>
          <MessageCard type={type} message={Error} show={issubmit} callshow={callbacksubmit}/>
-         {/* <ModalDateTimePicker
-  isVisible={showStartTimePicker}
-  mode="time"
-  onConfirm={(date) => {
-    setShowStartTimePicker(false);
-    setfrom(date);
-  }}
-  onCancel={() => setShowStartTimePicker(false)}
-/>
-
-<ModalDateTimePicker
-  isVisible={showEndTimePicker}
-  mode="time"
-  onConfirm={(date) => {
-    setShowEndTimePicker(false);
-    setto(date);
-  }}
-  onCancel={() => setShowEndTimePicker(false)}
-/> */}
-
      <View style={{display:"flex",flexDirection:"row",justifyContent:"space-between",alignItems:"center",marginTop:rp(5)}}>
         <Pressable onPress={()=>navigation.pop()} style={styles.btn}>
         <IonicIcon name="arrow-back" size={24} color={colors.white} />
@@ -78,16 +70,13 @@ export default function UpdateProfile({navigation}) {
         <TextInput value={desc} onChangeText={(e)=>setdesc(e)} style={{marginTop:rp(1),borderBottomWidth:1,borderBottomColor:colors.black,paddingHorizontal:rp(1.2),paddingVertical:rp(.6),color:colors.black,fontFamily:fonts.Rregular}}/>
      </View>
 
-     <View style={{marginBottom:rp(7)}}>
-        <Pressable><Text style={styles.lable}>Availabile From</Text></Pressable>
-        <TextInput value={from} onChangeText={(e)=>setfrom(e)} style={{marginTop:rp(1),borderBottomWidth:1,borderBottomColor:colors.black,paddingHorizontal:rp(1.2),paddingVertical:rp(.6),color:colors.black,fontFamily:fonts.Rregular}}/>
-       
-        </View>
-     <View style={{marginBottom:rp(7)}}>
-        <Pressable><Text style={styles.lable}>Availabile to</Text></Pressable>
-        <TextInput value={to} onChangeText={(e)=>setto(e)} style={{marginTop:rp(1),borderBottomWidth:1,borderBottomColor:colors.black,paddingHorizontal:rp(1.2),paddingVertical:rp(.6),color:colors.black,fontFamily:fonts.Rregular}}/>
-       
-       </View>
+  {
+    user.trainer&&   <View style={{marginBottom:rp(7)}}>
+    <Pressable><Text style={styles.lable}>Set Availability</Text></Pressable>
+    <TextInput  value={from} onChangeText={(e)=>setfrom(e)} style={{marginTop:rp(1),borderBottomWidth:1,borderBottomColor:colors.black,paddingHorizontal:rp(1.2),paddingVertical:rp(.6),color:colors.black,fontFamily:fonts.Rregular}}/>
+   
+    </View>
+  }
      </View>
     </View>
     <Pressable disabled={issubmit} onPress={handleform} style={[{backgroundColor:colors.black,marginBottom:rp(8),paddingHorizontal:rp(2),paddingVertical:rp(2),borderRadius:rp(3)},styles.centertext]}>

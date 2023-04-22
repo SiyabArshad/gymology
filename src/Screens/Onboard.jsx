@@ -12,20 +12,21 @@ export default function Onboard({navigation}) {
         <Text style={styles.desc}>
         Gymology a Platform for Gym Enthusiats.
         </Text>
-        <Pressable 
-        onPress={
-          ()=>navigation.navigate("signup",{istrainer:false})
-        } 
-        style={[styles.centertext,styles.btn]}>
-        <IonicIcon name="arrow-forward" size={30} color={colors.primary} />
+        <Pressable onPress={()=>navigation.navigate("signup",{istrainer:true})} style={{width:200,display:"flex",alignItems:"center",justifyContent:"center",backgroundColor:colors.primary,borderRadius:10,marginVertical:5,paddingHorizontal:20,paddingVertical:10}}>
+           <Text style={[styles.centertext,{fontFamily:fonts.Nregular,color:colors.white,fontSize:rp(2.2)}]}>Signup as a Trainer</Text>
         </Pressable>
-        <Pressable 
-        onPress={
-          ()=>navigation.navigate("signup",{istrainer:true})
-        }
-        style={{marginTop:rp(4)}}>
-          <Text style={[styles.centertext,{fontFamily:fonts.Nregular,color:colors.white,fontSize:rp(2.6)}]}>Continue as a Trainer</Text>
+        <Pressable onPress={()=>navigation.navigate("login")} style={{width:200,display:"flex",alignItems:"center",justifyContent:"center",borderWidth:2,borderColor:colors.black,borderRadius:10,marginVertical:5,paddingHorizontal:20,paddingVertical:10}}>
+           <Text style={[styles.centertext,{fontFamily:fonts.Nregular,color:colors.white,fontSize:rp(2.2)}]}>Login as a Trainer</Text>
         </Pressable>
+        <Pressable onPress={()=>navigation.navigate("signup",{istrainer:false})} style={{width:200,display:"flex",alignItems:"center",justifyContent:"center",backgroundColor:colors.primary,borderRadius:10,marginVertical:5,paddingHorizontal:20,paddingVertical:10}}>
+           <Text style={[styles.centertext,{fontFamily:fonts.Nregular,color:colors.white,fontSize:rp(2.2)}]}>Signup as a Trainee</Text>
+        </Pressable>
+        <Pressable onPress={()=>navigation.navigate("login")} style={{width:200,display:"flex",alignItems:"center",justifyContent:"center",borderWidth:2,borderColor:colors.black,borderRadius:10,marginVertical:5,paddingHorizontal:20,paddingVertical:10}}>
+           <Text style={[styles.centertext,{fontFamily:fonts.Nregular,color:colors.white,fontSize:rp(2.2)}]}>Login as a Trainee</Text>
+        </Pressable>
+        
+        
+        
     </View>
   )
 }
@@ -50,7 +51,8 @@ headtext:{
 },
 desc:{
     width:"70%",
-    marginTop:rp(3),
+    marginVertical:rp(3),
+
     textAlign:"center",
     color:colors.white,
     fontFamily:fonts.Nlight,

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View ,ActivityIndicator} from 'react-native';
+import { StyleSheet, Text, View ,ActivityIndicator,SafeAreaView} from 'react-native';
 import React from 'react';
 import * as Font from "expo-font";
 
@@ -17,7 +17,7 @@ import colors from './src/configs/colors';
 const Stack = createNativeStackNavigator();
 import TabNavigation from './src/Components/TabNavigation';
 import NearGym from './src/Screens/NearGym';
-// import SplashScreen from 'react-native-splash-screen';
+import { AuthContext,AuthProvider,useAuth } from './src/context/Authemtication';
 export default function App() {
   LogBox.ignoreAllLogs()
   const [fontsLoaded, error] = Font.useFonts({
@@ -35,13 +35,7 @@ export default function App() {
     'RobotoMono-SemiBold': require('./assets/fonts/RobotoMono-SemiBold.ttf'),
     'RobotoMono-Thin': require('./assets/fonts/RobotoMono-Thin.ttf'),
   });
-  // React.useEffect(()=>{
-  //   SplashScreen.show();
-
-  //   setTimeout(() => {
-  //       SplashScreen.hide()
-  //   }, 3000);
-  // },[])
+  
   if(!fontsLoaded)
   {
     return(
@@ -51,22 +45,37 @@ export default function App() {
     )
   }
   return (
+    <AuthProvider>
     <NavigationContainer >
       <StatusBar/>
-    <Stack.Navigator initialroute="onboard" screenOptions={{headerShown:false}} >
-      <Stack.Screen name="onboard" component={Onboard} />
-      <Stack.Screen name='signup' component={Signup}/>
-      <Stack.Screen name="login" component={Login} />
-      <Stack.Screen name="forgot" component={Forgotpass}/>
+    <Routes/>
+    </NavigationContainer>
+    </AuthProvider>
+  );
+}
+const Routes=()=>{
+  const {user}=useAuth()
+  return(
+<Stack.Navigator initialroute="onboard" screenOptions={{headerShown:false}} >
+{
+  user?
+  <>
       <Stack.Screen name="home" component={TabNavigation}/>
       <Stack.Screen name='edit' component={UpdateProfile}/>
       <Stack.Screen name='chat' component={Chat}/>
       <Stack.Screen name='gym' component={NearGym}/>
-    </Stack.Navigator>
-    </NavigationContainer>
-  );
+  </>
+  :
+  <>
+  <Stack.Screen name="onboard" component={Onboard} />
+      <Stack.Screen name='signup' component={Signup}/>
+      <Stack.Screen name="login" component={Login} />
+      <Stack.Screen name="forgot" component={Forgotpass}/>
+  </>
 }
-
+    </Stack.Navigator>
+  )
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

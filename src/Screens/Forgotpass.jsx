@@ -5,8 +5,13 @@ import colors from '../configs/colors'
 import { RFPercentage as rp, RFValue as rf } from "react-native-responsive-fontsize";
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import MessageCard from '../Components/MessageCard';
+import {createUserWithEmailAndPassword,getAuth,deleteUser,updateProfile,sendEmailVerification,sendPasswordResetEmail} from "firebase/auth"
+import {doc,setDoc,getFirestore, addDoc, serverTimestamp} from "firebase/firestore"
+import app from '../configs/firebase';
 
 export default function Forgotpass({navigation}) {
+    const db=getFirestore(app)
+    const auth=getAuth(app)
     const[email,setemail]=React.useState("")
     const [isload,setisload]=React.useState(false)
     const [issubmit,setissubmit]=React.useState(false)
@@ -14,34 +19,39 @@ export default function Forgotpass({navigation}) {
     const [type,settype]=React.useState(false)
     const handleform=async()=>{
         setisload(true)
-        setissubmit(true)
+        
         try{
             if(email.length===0)
             {
             setError("Some Feilds are Missing")
-            setisload(false)
             settype(false)
             }
             if(email.length>10){
-
-                setError("Logged in Successfully")
-                setisload(false)
+               try{
+                await sendPasswordResetEmail(auth,email)
+                setError("Password Recovery Email sent")
                 settype(true)
+               }
+               catch(e){
+                setError(e.message)
+                settype(false)
+             
+               }
             }
             else
             {
                 setError("Invalid Credentials")
-                setisload(false)
                 settype(false)
            
             }
         }
         catch{
             setError("Try again later")
-            setisload(false)
             settype(false)
            
         }
+        setissubmit(true)
+        setisload(false)
     }
     const callbacksubmit=()=>{
         setissubmit(false)
