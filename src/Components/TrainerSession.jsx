@@ -174,6 +174,14 @@ if(isload)
                   }
                 </TouchableOpacity>
                 }
+                {
+           item?.trainer?.isEnd===true&&
+                <TouchableOpacity  style={{width:"49%",backgroundColor:colors.primary,paddingVertical:rp(1),borderRadius:5,display:"flex",justifyContent:"center",alignItems:"center"}}>
+                   {
+                    isbtnload?<ActivityIndicator size={24} color={colors.white}/>: <Text style={{color:colors.white,fontFamily:fonts.Nblack}}>Payment</Text>
+                  }
+                </TouchableOpacity>
+                }
             </View>
       </View>
         ))
